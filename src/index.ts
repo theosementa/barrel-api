@@ -8,7 +8,6 @@ import * as cron from "node-cron";
 import { Server } from "socket.io";
 import * as swStats from "swagger-stats";
 import { AppDataSource } from "./database/datasource";
-import { UserRepository } from "./database/repository/user.repository";
 import * as swaggerJsonFile from "./docs/swagger_output.json";
 import { authRouter } from "./routes/auth";
 import { carRouter } from "./routes/car";
@@ -113,10 +112,10 @@ export class Index {
     Index.globalConfig();
     Index.routeConfig();
     Index.socketConfig();
-    Index.imageFolder();
+    // Index.imageFolder();
     Index.redirectConfig();
     await Index.databaseConfig();
-    await UserRepository.initSplitMaster();
+    // await UserRepository.initSplitMaster();
     Index.startServer();
   }
 }

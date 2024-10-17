@@ -3,16 +3,18 @@ import { Entry } from "../database/entity/entry.entity";
 import { CarRepository } from "../database/repository/car.repository";
 import { EntryRepository } from "../database/repository/entry.repository";
 
-const entryRouter = express.Router();
+export const entryRouter = express.Router();
 
-entryRouter.get("/", async (req, res) => {
+entryRouter.get("/:carID", async (req, res) => {
   /*  #swagger.tags = ['Entry']
         #swagger.path = '/entry'
         #swagger.method = 'get'
-        #swagger.description = 'Get all entries.'
+        #swagger.description = 'Get all entries for a car.'
   */
-
-  return res.send(await EntryRepository.find());
+  var carID = parseInt(req.params.carID);
+  return res.send(
+    await EntryRepository.find({ where: { car: { id: carID } } })
+  );
 });
 
 entryRouter.get("/:id", async (req, res) => {
@@ -48,8 +50,14 @@ entryRouter.post("/", async (req, res) => {
   */
 
   const { carID, mileage, price, liter, date } = req.body;
-  const carIDParsed = parseInt(carID);
+  if (!date) {
+    return res.status(422).json({ message: "Date missing" });
+  }
+  if (!carID) {
+    return res.status(422).json({ message: "CarID missing" });
+  }
 
+  const carIDParsed = parseInt(carID);
   const car = await CarRepository.findOneBy({ id: carIDParsed });
   if (!car) {
     return res.status(404).json({ message: "Car not found" });
@@ -61,14 +69,14 @@ entryRouter.post("/", async (req, res) => {
 
   if (mileageParsed != 0 || priceParsed != 0 || literParsed != 0) {
     const newEntry = new Entry();
-    newEntry.mileage = mileageParsed;
-    newEntry.price = priceParsed;
-    newEntry.liter = literParsed;
+    newEntry.mileage = mileage != null ? mileageParsed : null;
+    newEntry.price = price != null ? priceParsed : null;
+    newEntry.liter = liter != null ? literParsed : null;
     newEntry.date = date;
     newEntry.car = car;
 
     await EntryRepository.save(newEntry);
-    return res.send(newEntry); //TODO : ça va retourner 'car' que j'ai pas besoin ici non ?
+    return res.send(newEntry);
   } else {
     return res.status(400).json({ message: "All fields are empty." });
   }
@@ -93,12 +101,12 @@ entryRouter.put("/:id", async (req, res) => {
   const priceParsed = parseFloat(price);
   const literParsed = parseFloat(liter);
 
-  entry.mileage = mileageParsed === 0 ? entry.mileage : mileageParsed;
-  entry.price = priceParsed === 0 ? entry.price : priceParsed;
-  entry.liter = literParsed === 0 ? entry.liter : literParsed;
+  entry.mileage = mileage != null ? entry.mileage : mileageParsed;
+  entry.price = price != null ? entry.price : priceParsed;
+  entry.liter = liter != null ? entry.liter : literParsed;
 
   await EntryRepository.save(entry);
-  return res.send(entry); //TODO : ça va retourner 'car' que j'ai pas besoin ici non ?
+  return res.send(entry);
 });
 
 entryRouter.delete("/:id", async (req, res) => {

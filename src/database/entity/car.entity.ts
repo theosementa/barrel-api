@@ -10,5 +10,5 @@ export class Car {
   name: String;
 
   @OneToMany(() => Entry, (entry) => entry.car)
-  entries: Entry;
+  entries: Entry[];
 }

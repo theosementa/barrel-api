@@ -2,7 +2,7 @@ import express = require("express");
 import { Car } from "../database/entity/car.entity";
 import { CarRepository } from "../database/repository/car.repository";
 
-const carRouter = express.Router();
+export const carRouter = express.Router();
 
 carRouter.get("/", async (req, res) => {
   /*  #swagger.tags = ['Car']
@@ -12,6 +12,16 @@ carRouter.get("/", async (req, res) => {
   */
 
   return res.send(await CarRepository.find());
+});
+
+carRouter.get("/:id", async (req, res) => {
+  /*  #swagger.tags = ['Car']
+        #swagger.path = '/car'
+        #swagger.method = 'get'
+        #swagger.description = 'Get all the cars.'
+  */
+  var carID = parseInt(req.params.id);
+  return res.send(await CarRepository.findOneBy({ id: carID }));
 });
 
 carRouter.post("/", async (req, res) => {

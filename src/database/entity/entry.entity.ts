@@ -6,13 +6,13 @@ export class Entry {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ nullable: true })
   mileage: number;
 
-  @Column()
+  @Column({ nullable: true })
   price: number;
 
-  @Column()
+  @Column({ nullable: true })
   liter: number;
 
   @Column()

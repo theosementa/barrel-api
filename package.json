@@ -28,6 +28,7 @@
     "node-cron": "^3.0.3",
     "sharp": "^0.33.4",
     "socket.io": "^4.7.4",
+    "sqlite3": "^5.1.7",
     "swagger-autogen": "^2.23.7",
     "swagger-stats": "^0.99.7",
     "swagger-ui-express": "^5.0.0",
