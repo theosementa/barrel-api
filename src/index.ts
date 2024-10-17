@@ -1,6 +1,8 @@
+import * as dotenv from "dotenv";
+dotenv.config();
+
 import * as bodyParser from "body-parser";
 import * as cors from "cors";
-import * as dotenv from "dotenv";
 import * as express from "express";
 import * as basicAuth from "express-basic-auth";
 import * as http from "http";
@@ -15,8 +17,6 @@ import { carRouter } from "./routes/car";
 import { entryRouter } from "./routes/entry";
 import { userRouter } from "./routes/user";
 import { initSocket } from "./utils/socket/initSocket";
-
-dotenv.config();
 
 export class Index {
   static jwtKey = process.env.JWT_SECRET;
