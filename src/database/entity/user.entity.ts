@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Car } from "./car.entity";
 
 @Entity()
 export class User {
@@ -21,7 +22,7 @@ export class User {
   password: string;
 
   @Column()
-  createdAt: String;
+  createdAt: Date;
 
   @Column({ default: null, nullable: true })
   provider: string;
@@ -40,4 +41,7 @@ export class User {
 
   @Column({ default: false, select: false })
   isAnonymise: boolean;
+
+  @OneToMany(() => Car, (car) => car.user)
+  cars: Car[];
 }

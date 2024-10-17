@@ -1,5 +1,6 @@
 import express = require("express");
 import { Car } from "../database/entity/car.entity";
+import { User } from "../database/entity/user.entity";
 import { CarRepository } from "../database/repository/car.repository";
 
 export const carRouter = express.Router();
@@ -10,18 +11,8 @@ carRouter.get("/", async (req, res) => {
         #swagger.method = 'get'
         #swagger.description = 'Get all the cars.'
   */
-
-  return res.send(await CarRepository.find());
-});
-
-carRouter.get("/:id", async (req, res) => {
-  /*  #swagger.tags = ['Car']
-        #swagger.path = '/car'
-        #swagger.method = 'get'
-        #swagger.description = 'Get all the cars.'
-  */
-  var carID = parseInt(req.params.id);
-  return res.send(await CarRepository.findOneBy({ id: carID }));
+  const user: User = res.locals.connectedUser;
+  return res.send(await CarRepository.findBy({ user: { id: user.id } }));
 });
 
 carRouter.post("/", async (req, res) => {
@@ -32,9 +23,11 @@ carRouter.post("/", async (req, res) => {
   */
 
   const { name } = req.body;
+  const user: User = res.locals.connectedUser;
 
   const newCar = new Car();
   newCar.name = name;
+  newCar.user = user;
 
   await CarRepository.save(newCar);
 
@@ -48,8 +41,12 @@ carRouter.delete("/:id", async (req, res) => {
         #swagger.description = 'Delete a car.'
   */
 
+  const user: User = res.locals.connectedUser;
   const carID = parseInt(req.params.id);
-  const carToDelete = await CarRepository.findOneBy({ id: carID });
+  const carToDelete = await CarRepository.findOneBy({
+    id: carID,
+    user: { id: user.id },
+  });
 
   if (carToDelete) {
     await CarRepository.delete(carToDelete);

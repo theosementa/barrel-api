@@ -16,7 +16,7 @@ export class Entry {
   liter: number;
 
   @Column()
-  date: String;
+  date: Date;
 
   @ManyToOne(() => Car, (car) => car.entries)
   car: Car;
