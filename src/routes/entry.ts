@@ -1,5 +1,6 @@
 import express = require("express");
 import { Entry } from "../database/entity/entry.entity";
+import { User } from "../database/entity/user.entity";
 import { CarRepository } from "../database/repository/car.repository";
 import { EntryRepository } from "../database/repository/entry.repository";
 
@@ -11,9 +12,17 @@ entryRouter.get("/:carID", async (req, res) => {
         #swagger.method = 'get'
         #swagger.description = 'Get all entries for a car.'
   */
-  var carID = parseInt(req.params.carID);
+  const user: User = res.locals.connectedUser;
+  const carID = parseInt(req.params.carID);
   return res.send(
-    await EntryRepository.find({ where: { car: { id: carID } } })
+    await EntryRepository.find({
+      where: {
+        car: {
+          id: carID,
+          user: { id: user.id },
+        },
+      },
+    })
   );
 });
 
@@ -24,8 +33,14 @@ entryRouter.get("/:id", async (req, res) => {
         #swagger.description = 'Get one entry.'
   */
 
+  const user: User = res.locals.connectedUser;
   const entryID = parseInt(req.params.id);
-  const entry = await EntryRepository.findOneBy({ id: entryID });
+  const entry = await EntryRepository.findOneBy({
+    id: entryID,
+    car: {
+      user: { id: user.id },
+    },
+  });
 
   if (entry) {
     return res.send(entry);
@@ -57,8 +72,12 @@ entryRouter.post("/", async (req, res) => {
     return res.status(422).json({ message: "CarID missing" });
   }
 
+  const user: User = res.locals.connectedUser;
   const carIDParsed = parseInt(carID);
-  const car = await CarRepository.findOneBy({ id: carIDParsed });
+  const car = await CarRepository.findOneBy({
+    id: carIDParsed,
+    user: { id: user.id },
+  });
   if (!car) {
     return res.status(404).json({ message: "Car not found" });
   }
@@ -89,8 +108,14 @@ entryRouter.put("/:id", async (req, res) => {
         #swagger.description = 'Edit one entry.'
   */
 
+  const user: User = res.locals.connectedUser;
   const entryID = parseInt(req.params.id);
-  const entry = await EntryRepository.findOneBy({ id: entryID });
+  const entry = await EntryRepository.findOneBy({
+    id: entryID,
+    car: {
+      user: { id: user.id },
+    },
+  });
 
   if (!entry) {
     return res.status(404).json({ message: "Entry not found" });
@@ -116,8 +141,14 @@ entryRouter.delete("/:id", async (req, res) => {
         #swagger.description = 'Delete one entry.'
   */
 
+  const user: User = res.locals.connectedUser;
   const entryID = parseInt(req.params.id);
-  const entry = await EntryRepository.findOneBy({ id: entryID });
+  const entry = await EntryRepository.findOneBy({
+    id: entryID,
+    car: {
+      user: { id: user.id },
+    },
+  });
 
   if (entry) {
     await EntryRepository.delete(entry);
