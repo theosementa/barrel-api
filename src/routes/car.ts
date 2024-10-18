@@ -10,6 +10,12 @@ carRouter.get("/", async (req, res) => {
         #swagger.path = '/car'
         #swagger.method = 'get'
         #swagger.description = 'Get all the cars.'
+        #swagger.responses[200] = {
+            description: 'User cars retrieved successfully.',
+            schema: {
+                $ref: '#/definitions/Car'
+            }
+        }
   */
   const user: User = res.locals.connectedUser;
   return res.send(await CarRepository.findBy({ user: { id: user.id } }));
@@ -36,9 +42,15 @@ carRouter.post("/", async (req, res) => {
 
 carRouter.delete("/:id", async (req, res) => {
   /*  #swagger.tags = ['Car']
-        #swagger.path = '/car'
+        #swagger.path = '/car/{id}'
         #swagger.method = 'delete'
         #swagger.description = 'Delete a car.'
+        #swagger.parameters['id'] = {
+            in: 'path',
+            description: 'id of the car',
+            required: true,
+            type: 'number'
+        }
   */
 
   const user: User = res.locals.connectedUser;

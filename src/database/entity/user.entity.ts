@@ -24,15 +24,6 @@ export class User {
   @Column()
   createdAt: Date;
 
-  @Column({ default: null, nullable: true })
-  provider: string;
-
-  @Column({ default: true })
-  isCompleted: boolean;
-
-  @Column({ default: false })
-  isGuest: boolean;
-
   @Column({ default: false, select: false })
   isDeleted: boolean;
 

@@ -12,7 +12,6 @@ import * as swStats from "swagger-stats";
 import { AppDataSource } from "./database/datasource";
 import * as swaggerJsonFile from "./docs/swagger_output.json";
 import { apiTokenMiddleware } from "./middlewares/checkApiToken";
-import { authRouter } from "./routes/auth";
 import { carRouter } from "./routes/car";
 import { entryRouter } from "./routes/entry";
 import { userRouter } from "./routes/user";
@@ -41,7 +40,6 @@ export class Index {
 
   static routeConfig() {
     Index.app.use("/user", userRouter);
-    Index.app.use("/auth", authRouter);
     Index.app.use("/entry", apiTokenMiddleware, entryRouter);
     Index.app.use("/car", apiTokenMiddleware, carRouter);
   }

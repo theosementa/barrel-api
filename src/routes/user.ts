@@ -113,10 +113,7 @@ userRouter.post(
         firstName,
         email,
         username,
-        createHash("sha256").update(password).digest("hex"),
-        "split_api",
-        true,
-        false
+        createHash("sha256").update(password).digest("hex")
       );
 
       let createdUser = await UserRepository.save(user);
@@ -185,40 +182,6 @@ userRouter.put("/update", apiTokenMiddleware, async (req, res) => {
 
     let updatedUser = await UserRepository.save(user);
     return res.send(updatedUser);
-  } catch (e) {
-    return ErrorHandler(e, req, res);
-  }
-});
-
-userRouter.delete("/image", apiTokenMiddleware, async (req, res) => {
-  /*  #swagger.tags = ['User']
-        #swagger.path = '/user/image'
-        #swagger.description = 'Delete user image.'
-        #swagger.responses[200] = {
-            description: 'User updated successfully.',
-            schema: {
-                  $ref: '#/definitions/User'
-            }
-        }
-        #swagger.responses[404] = {
-            description: 'User not found.',
-            schema: {
-                status: 404,
-                msg: 'User not found.'
-            }
-        }
-        #swagger.responses[422] = {
-            description: 'Unprocessable entity.',
-            schema: {
-                status: 422,
-                msg: 'Required fields missing.'
-            }
-        }
-    */
-
-  try {
-    let user: User = res.locals.connectedUser;
-    return res.send(user);
   } catch (e) {
     return ErrorHandler(e, req, res);
   }

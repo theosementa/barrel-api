@@ -6,31 +6,17 @@ import { EntryRepository } from "../database/repository/entry.repository";
 
 export const entryRouter = express.Router();
 
-entryRouter.get("/:carID", async (req, res) => {
-  /*  #swagger.tags = ['Entry']
-        #swagger.path = '/entry'
-        #swagger.method = 'get'
-        #swagger.description = 'Get all entries for a car.'
-  */
-  const user: User = res.locals.connectedUser;
-  const carID = parseInt(req.params.carID);
-  return res.send(
-    await EntryRepository.find({
-      where: {
-        car: {
-          id: carID,
-          user: { id: user.id },
-        },
-      },
-    })
-  );
-});
-
 entryRouter.get("/:id", async (req, res) => {
   /*  #swagger.tags = ['Entry']
-        #swagger.path = '/entry'
+        #swagger.path = '/entry/{id}'
         #swagger.method = 'get'
         #swagger.description = 'Get one entry.'
+        #swagger.parameters['id'] = {
+            in: 'path',
+            description: 'id of entry',
+            required: true,
+            type: 'number'
+        }
   */
 
   const user: User = res.locals.connectedUser;
@@ -103,9 +89,15 @@ entryRouter.post("/", async (req, res) => {
 
 entryRouter.put("/:id", async (req, res) => {
   /*  #swagger.tags = ['Entry']
-        #swagger.path = '/entry'
+        #swagger.path = '/entry/{id}'
         #swagger.method = 'put'
         #swagger.description = 'Edit one entry.'
+        #swagger.parameters['id'] = {
+            in: 'path',
+            description: 'id of entry',
+            required: true,
+            type: 'number'
+        }
   */
 
   const user: User = res.locals.connectedUser;
@@ -136,9 +128,15 @@ entryRouter.put("/:id", async (req, res) => {
 
 entryRouter.delete("/:id", async (req, res) => {
   /*  #swagger.tags = ['Entry']
-        #swagger.path = '/entry'
+        #swagger.path = '/entry/{id}'
         #swagger.method = 'delete'
         #swagger.description = 'Delete one entry.'
+        #swagger.parameters['id'] = {
+            in: 'path',
+            description: 'id of entry',
+            required: true,
+            type: 'number'
+        }
   */
 
   const user: User = res.locals.connectedUser;

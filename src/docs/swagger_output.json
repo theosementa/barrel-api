@@ -27,163 +27,6 @@
     "application/json"
   ],
   "paths": {
-    "/auth/apple/": {
-      "post": {
-        "tags": [
-          "Auth"
-        ],
-        "description": "Authentification avec apple voir la réponse, si needStepTwo = true dans ce cas tu affiches une page pour demander username firstname et lastname et tu fais apple a l",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "identityToken": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful authentication",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "needStepTwo": {
-                  "type": "string",
-                  "example": "true"
-                },
-                "user": {
-                  "$ref": "#/definitions/User"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "422": {
-            "description": "Unprocessable Entity"
-          }
-        }
-      }
-    },
-    "/auth/google/": {
-      "post": {
-        "tags": [
-          "Auth"
-        ],
-        "description": "Authentification avec google voir la réponse, si needStepTwo = true dans ce cas tu affiches une page pour demander username firstname et lastname et tu fais apple a l",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "identityToken": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful authentication",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "needStepTwo": {
-                  "type": "string",
-                  "example": "true"
-                },
-                "user": {
-                  "$ref": "#/definitions/User"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity"
-          }
-        }
-      }
-    },
-    "/auth/from-provider/step-two": {
-      "post": {
-        "tags": [
-          "Auth"
-        ],
-        "description": "Seconde routes une fois que tu as utilisé la première routes pour utiliser un service tiers, elle attend les infos complémentaires pour que le compte soit valide",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Informations nécessaires pour compléter le compte utilisateur",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "username": {
-                  "type": "string",
-                  "example": "johndoe123"
-                },
-                "firstname": {
-                  "type": "string",
-                  "example": "John"
-                },
-                "lastname": {
-                  "type": "string",
-                  "example": "Doe"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful authentication",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "needStepTwo": {
-                  "type": "string",
-                  "example": "true"
-                },
-                "user": {
-                  "$ref": "#/definitions/User"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "422": {
-            "description": "Unprocessable Entity"
-          }
-        }
-      }
-    },
     "/user/me": {
       "get": {
         "tags": [
@@ -571,7 +414,10 @@
         "description": "Get all the cars.",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "User cars retrieved successfully.",
+            "schema": {
+              "$ref": "#/definitions/Car"
+            }
           }
         }
       },
@@ -599,12 +445,109 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/car/{id}": {
       "delete": {
         "tags": [
           "Car"
         ],
         "description": "Delete a car.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "number",
+            "description": "id of the car"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/entry/{id}": {
+      "get": {
+        "tags": [
+          "Entry"
+        ],
+        "description": "Get one entry.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "number",
+            "description": "id of entry"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Entry"
+        ],
+        "description": "Edit one entry.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "number",
+            "description": "id of entry"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "example": "any"
+                },
+                "car": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Entry"
+        ],
+        "description": "Delete one entry.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "number",
+            "description": "id of entry"
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -616,20 +559,6 @@
       }
     },
     "/entry": {
-      "get": {
-        "tags": [
-          "Entry"
-        ],
-        "description": "Get one entry.",
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          }
-        }
-      },
       "post": {
         "tags": [
           "Entry"
@@ -658,57 +587,6 @@
           },
           "422": {
             "description": "Unprocessable Entity"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Entry"
-        ],
-        "description": "Edit one entry.",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "mileage": {
-                  "example": "any"
-                },
-                "price": {
-                  "example": "any"
-                },
-                "liter": {
-                  "example": "any"
-                },
-                "date": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Entry"
-        ],
-        "description": "Delete one entry.",
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
           }
         }
       }
