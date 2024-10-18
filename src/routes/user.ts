@@ -94,14 +94,11 @@ userRouter.post(
     */
 
     try {
-      let { email, firstName, lastName, password, username } = req.body;
+      let { password, username } = req.body;
 
       if (
         !checkRequiredField([
-          { type: "mail", object: email },
           { type: "password", object: password },
-          { type: "name", object: firstName },
-          { type: "name", object: lastName },
           { type: "username", object: username },
         ])
       ) {
@@ -109,9 +106,6 @@ userRouter.post(
       }
 
       let user = UserRepository.createUser(
-        lastName,
-        firstName,
-        email,
         username,
         createHash("sha256").update(password).digest("hex")
       );
@@ -164,21 +158,22 @@ userRouter.put("/update", apiTokenMiddleware, async (req, res) => {
     */
 
   try {
-    let { email, firstName, lastName, password, username, image } = req.body;
+    let { password, username } = req.body;
     let user: User = res.locals.connectedUser;
 
     if (
       username &&
       checkRequiredField([{ type: "username", object: username }])
-    )
+    ) {
       user.username = username;
-    if (email && checkRequiredField([{ type: "mail", object: email }]))
-      user.email = email;
+    }
+
     if (
       password &&
       checkRequiredField([{ type: "password", object: password }])
-    )
+    ) {
       user.password = createHash("sha256").update(password).digest("hex");
+    }
 
     let updatedUser = await UserRepository.save(user);
     return res.send(updatedUser);
@@ -232,15 +227,17 @@ userRouter.post("/login", async (req, res) => {
     */
 
   try {
-    let { email, password } = req.body;
+    let { username, password } = req.body;
 
-    if (!checkRequiredField([{ type: "email", object: email }, password])) {
+    if (
+      !checkRequiredField([{ type: "username", object: username }, password])
+    ) {
       return res.sendStatus(422);
     }
 
     let connectedUser = await UserRepository.findOneOrFail({
       where: {
-        email: Equal(email),
+        username: Equal(username),
         password: Equal(createHash("sha256").update(password).digest("hex")),
         isDeleted: Equal(false),
       },

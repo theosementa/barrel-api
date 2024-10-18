@@ -50,8 +50,8 @@ entryRouter.post("/", async (req, res) => {
         }
   */
 
-  const { carID, mileage, price, liter, date } = req.body;
-  if (!date) {
+  const { carID, mileage, price, liter, dateISO } = req.body;
+  if (!dateISO) {
     return res.status(422).json({ message: "Date missing" });
   }
   if (!carID) {
@@ -71,13 +71,14 @@ entryRouter.post("/", async (req, res) => {
   const mileageParsed = parseInt(mileage);
   const priceParsed = parseFloat(price);
   const literParsed = parseFloat(liter);
+  const dateParsed = new Date(dateISO);
 
   if (mileageParsed != 0 || priceParsed != 0 || literParsed != 0) {
     const newEntry = new Entry();
     newEntry.mileage = mileage != null ? mileageParsed : null;
     newEntry.price = price != null ? priceParsed : null;
     newEntry.liter = liter != null ? literParsed : null;
-    newEntry.date = date;
+    newEntry.date = dateParsed;
     newEntry.car = car;
 
     await EntryRepository.save(newEntry);
@@ -113,14 +114,16 @@ entryRouter.put("/:id", async (req, res) => {
     return res.status(404).json({ message: "Entry not found" });
   }
 
-  const { mileage, price, liter, date } = req.body;
+  const { mileage, price, liter, dateISO } = req.body;
   const mileageParsed = parseInt(mileage);
   const priceParsed = parseFloat(price);
   const literParsed = parseFloat(liter);
+  const dateParsed = new Date(dateISO);
 
   entry.mileage = mileage != null ? entry.mileage : mileageParsed;
   entry.price = price != null ? entry.price : priceParsed;
   entry.liter = liter != null ? entry.liter : literParsed;
+  entry.date = dateParsed;
 
   await EntryRepository.save(entry);
   return res.send(entry);

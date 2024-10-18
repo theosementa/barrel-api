@@ -6,17 +6,8 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  firstName: string;
-
-  @Column()
-  lastName: string;
-
-  @Column({ default: null, nullable: true, unique: true })
-  username: string;
-
   @Column({ unique: true })
-  email: string;
+  username: string;
 
   @Column({ select: false })
   password: string;
