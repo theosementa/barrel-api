@@ -1,8 +1,14 @@
 import express = require("express");
+import { Average } from "../database/entity/average.entity";
 import { Entry } from "../database/entity/entry.entity";
+import { Estimation } from "../database/entity/estimation.entity";
+import { Statistics } from "../database/entity/statistics.entity";
 import { User } from "../database/entity/user.entity";
+import { AverageRepository } from "../database/repository/average.repository";
 import { CarRepository } from "../database/repository/car.repository";
 import { EntryRepository } from "../database/repository/entry.repository";
+import { EstimationRepository } from "../database/repository/estimation.repository";
+import { StatisticsRepository } from "../database/repository/statistics.repository";
 
 export const entryRouter = express.Router();
 
@@ -36,22 +42,9 @@ entryRouter.get("/:id", async (req, res) => {
 });
 
 entryRouter.post("/", async (req, res) => {
-  /*  #swagger.tags = ['Entry']
-        #swagger.path = '/entry'
-        #swagger.method = 'post'
-        #swagger.description = 'Create one entry.'
-        #swagger.parameters['body'] = {
-            in: 'body',
-            description: 'Entry creation data',
-            required: true,
-            schema: {
-                $ref: '#/definitions/Entry'
-            }
-        }
-  */
+  const { carID, mileage, price, liter, date } = req.body;
 
-  const { carID, mileage, price, liter, dateISO } = req.body;
-  if (!dateISO) {
+  if (!date) {
     return res.status(422).json({ message: "Date missing" });
   }
   if (!carID) {
@@ -60,29 +53,78 @@ entryRouter.post("/", async (req, res) => {
 
   const user: User = res.locals.connectedUser;
   const carIDParsed = parseInt(carID);
-  const car = await CarRepository.findOneBy({
-    id: carIDParsed,
-    user: { id: user.id },
+  const car = await CarRepository.findOne({
+    where: {
+      id: carIDParsed,
+      user: { id: user.id },
+    },
+    relations: { entries: true, statistics: true },
   });
+
   if (!car) {
     return res.status(404).json({ message: "Car not found" });
   }
 
-  const mileageParsed = parseInt(mileage);
-  const priceParsed = parseFloat(price);
-  const literParsed = parseFloat(liter);
-  const dateParsed = new Date(dateISO);
+  const mileageParsed = mileage != null ? parseInt(mileage) : 0;
+  const priceParsed = price != null ? parseFloat(price) : 0;
+  const literParsed = liter != null ? parseFloat(liter) : 0;
+  const dateParsed = new Date(date);
 
-  if (mileageParsed != 0 || priceParsed != 0 || literParsed != 0) {
+  if (mileageParsed !== 0 || priceParsed !== 0 || literParsed !== 0) {
     const newEntry = new Entry();
-    newEntry.mileage = mileage != null ? mileageParsed : null;
-    newEntry.price = price != null ? priceParsed : null;
-    newEntry.liter = liter != null ? literParsed : null;
+    newEntry.mileage = mileageParsed || null;
+    newEntry.price = priceParsed || null;
+    newEntry.liter = literParsed || null;
     newEntry.date = dateParsed;
     newEntry.car = car;
 
+    // Sauvegarder la nouvelle entrée
+    car.entries.push(newEntry);
     await EntryRepository.save(newEntry);
-    return res.send(newEntry);
+
+    // Mettre à jour les estimations et moyennes de manière séparée
+    let statistics = car.statistics ?? new Statistics();
+
+    if (!statistics.average) {
+      statistics.average = new Average();
+    }
+    statistics.average.mileagePerDay =
+      StatisticsRepository.getAveragePerDay(car);
+    statistics.average.mileagePerMonth =
+      StatisticsRepository.getAveragePerMonth(car);
+    statistics.average.mileagePerYear =
+      StatisticsRepository.getAveragePerYear(car);
+
+    if (!statistics.estimation) {
+      statistics.estimation = new Estimation();
+    }
+    statistics.estimation.mileageAtEndOfCurrentYear =
+      StatisticsRepository.getEstimatedMileageAtEndOfCurrentYear(car);
+    statistics.estimation.mileageAtEndOfTheCurrentMonth =
+      StatisticsRepository.getEstimatedMileageAtEndOfCurrentMonth(car);
+
+    // Sauvegarder les statistiques et les objets liés (Average et Estimation)
+    await AverageRepository.save(statistics.average); // Assurez-vous que vous avez un AverageRepository
+    await EstimationRepository.save(statistics.estimation); // Assurez-vous que vous avez un EstimationRepository
+    statistics.car = car;
+    await StatisticsRepository.save(statistics);
+
+    car.statistics = statistics; // Associer les statistiques mises à jour à la voiture
+    await CarRepository.save(car);
+
+    // Récupérer la voiture mise à jour
+    const updatedCar = await CarRepository.findOne({
+      where: {
+        id: carIDParsed,
+        user: { id: user.id },
+      },
+      relations: {
+        entries: true,
+        statistics: { estimation: true, average: true },
+      },
+    });
+
+    return res.send(updatedCar);
   } else {
     return res.status(400).json({ message: "All fields are empty." });
   }
