@@ -7,21 +7,19 @@ import { Statistics } from "../entity/statistics.entity";
 export const StatisticsRepository = AppDataSource.getRepository(
   Statistics
 ).extend({
-  getRecalculatedStatistics(car: Car) {
-    let estimation = car.statistics?.estimation ?? new Estimation();
-    estimation.mileageAtEndOfCurrentYear =
+  updateCarStatistics(car) {
+    const statistics = car.statistics ?? new Statistics();
+
+    statistics.average = statistics.average ?? new Average();
+    statistics.average.mileagePerDay = this.getAveragePerDay(car);
+    statistics.average.mileagePerMonth = this.getAveragePerMonth(car);
+    statistics.average.mileagePerYear = this.getAveragePerYear(car);
+
+    statistics.estimation = statistics.estimation ?? new Estimation();
+    statistics.estimation.mileageAtEndOfCurrentYear =
       this.getEstimatedMileageAtEndOfCurrentYear(car);
-    estimation.mileageAtEndOfTheCurrentMonth =
+    statistics.estimation.mileageAtEndOfTheCurrentMonth =
       this.getEstimatedMileageAtEndOfCurrentMonth(car);
-
-    let average = car.statistics?.average ?? new Average();
-    average.mileagePerDay = this.getAveragePerDay(car);
-    average.mileagePerMonth = this.getAveragePerMonth(car);
-    average.mileagePerYear = this.getAveragePerYear(car);
-
-    let statistics = car.statistics ?? new Statistics();
-    statistics.estimation = estimation;
-    statistics.average = average;
 
     return statistics;
   },
