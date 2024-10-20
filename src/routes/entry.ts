@@ -38,15 +38,15 @@ entryRouter.get("/:id", async (req, res) => {
 });
 
 entryRouter.post("/", async (req, res) => {
+  const user: User = res.locals.connectedUser;
   const { carID, mileage, price, liter, date } = req.body;
 
   if (!date || !carID) {
     return res.status(422).json({
-      message: !date ? "Date missing" : "CarID missing",
+      message: !date ? "date missing" : "carID missing",
     });
   }
 
-  const user: User = res.locals.connectedUser;
   const carIDParsed = parseInt(carID);
   const car = await CarRepository.findOne({
     where: {
@@ -70,12 +70,13 @@ entryRouter.post("/", async (req, res) => {
   car.statistics = StatisticsRepository.updateCarStatistics(car);
   await AverageRepository.save(car.statistics.average);
   await EstimationRepository.save(car.statistics.estimation);
+
   car.statistics.car = car;
   await StatisticsRepository.save(car.statistics);
   await CarRepository.save(car);
 
   const updatedCar = await CarRepository.findOne({
-    where: { id: parseInt(carID), user: { id: user.id } },
+    where: { id: carIDParsed, user: { id: user.id } },
     relations: {
       entries: true,
       statistics: { estimation: true, average: true },
@@ -141,10 +142,12 @@ entryRouter.delete("/:id", async (req, res) => {
 
   const user: User = res.locals.connectedUser;
   const entryID = parseInt(req.params.id);
-  const entry = await EntryRepository.findOneBy({
-    id: entryID,
-    car: {
-      user: { id: user.id },
+  const entry = await EntryRepository.findOne({
+    where: {
+      id: entryID,
+      car: {
+        user: { id: user.id },
+      },
     },
   });
 

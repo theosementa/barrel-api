@@ -9,10 +9,10 @@ export class Entry {
   @Column({ nullable: true })
   mileage: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: "decimal", precision: 5, scale: 2 })
   price: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: "decimal", precision: 5, scale: 2 })
   liter: number;
 
   @Column()

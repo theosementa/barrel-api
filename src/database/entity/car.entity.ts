@@ -21,13 +21,16 @@ export class Car {
   @Column()
   name: String;
 
-  @OneToMany(() => Entry, (entry) => entry.car, { cascade: true })
+  @OneToMany(() => Entry, (entry) => entry.car)
   entries: Entry[];
 
   @ManyToOne(() => User, (user) => user.cars)
   user: User;
 
-  @OneToOne(() => Statistics, (statistics) => statistics.car, { cascade: true })
+  @OneToOne(() => Statistics, (statistics) => statistics.car, {
+    cascade: true,
+    onDelete: "CASCADE",
+  })
   @JoinColumn()
   statistics: Statistics;
 

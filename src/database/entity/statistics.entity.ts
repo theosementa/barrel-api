@@ -11,11 +11,17 @@ export class Statistics {
   @OneToOne(() => Car, (car) => car.statistics)
   car: Car;
 
-  @OneToOne(() => Estimation, (estimation) => estimation.statistics)
+  @OneToOne(() => Estimation, (estimation) => estimation.statistics, {
+    cascade: true,
+    onDelete: "CASCADE",
+  })
   @JoinColumn()
   estimation: Estimation;
 
-  @OneToOne(() => Average, (average) => average.statistics)
+  @OneToOne(() => Average, (average) => average.statistics, {
+    cascade: true,
+    onDelete: "CASCADE",
+  })
   @JoinColumn()
   average: Average;
 }

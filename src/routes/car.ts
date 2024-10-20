@@ -80,19 +80,29 @@ carRouter.delete("/:id", async (req, res) => {
 
   const user: User = res.locals.connectedUser;
   const carID = parseInt(req.params.id);
+
   const carToDelete = await CarRepository.findOne({
     where: {
       id: carID,
       user: { id: user.id },
     },
-    relations: { entries: true },
+    relations: {
+      entries: true,
+      statistics: { estimation: true, average: true },
+    },
   });
 
-  if (carToDelete) {
-    await EntryRepository.delete({ car: { id: carID } });
-    await CarRepository.delete(carToDelete);
-    return res.sendStatus(200);
-  } else {
+  if (!carToDelete) {
     return res.status(404).json({ message: "Car not found" });
   }
+
+  if (carToDelete.entries.length > 0) {
+    await Promise.all(
+      carToDelete.entries.map((entry) => EntryRepository.remove(entry))
+    );
+  }
+
+  await CarRepository.remove(carToDelete);
+
+  return res.sendStatus(200);
 });
