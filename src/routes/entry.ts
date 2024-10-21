@@ -37,17 +37,17 @@ entryRouter.get("/:id", async (req, res) => {
   }
 });
 
-entryRouter.post("/", async (req, res) => {
+entryRouter.post("/:id", async (req, res) => {
   const user: User = res.locals.connectedUser;
-  const { carID, mileage, price, liter, date } = req.body;
+  const carIDParsed = parseInt(req.params.id);
+  const { mileage, price, liter, date } = req.body;
 
-  if (!date || !carID) {
+  if (!date || !carIDParsed) {
     return res.status(422).json({
       message: !date ? "date missing" : "carID missing",
     });
   }
 
-  const carIDParsed = parseInt(carID);
   const car = await CarRepository.findOne({
     where: {
       id: carIDParsed,

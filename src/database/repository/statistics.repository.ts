@@ -7,7 +7,7 @@ import { Statistics } from "../entity/statistics.entity";
 export const StatisticsRepository = AppDataSource.getRepository(
   Statistics
 ).extend({
-  updateCarStatistics(car) {
+  updateCarStatistics(car: Car) {
     const statistics = car.statistics ?? new Statistics();
 
     statistics.average = statistics.average ?? new Average();
